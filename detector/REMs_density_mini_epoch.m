@@ -23,7 +23,7 @@ for i = 1:length(Source)
     extractedStr = regexp(Source{i}, 'REMsOut_(.*?) date', 'tokens');
     % Display the extracted string
     if ~isempty(extractedStr)
-        fprintf(['Extracted string: \n', extractedStr{1}{1}]);
+        fprintf('Extracted string:%s\n', extractedStr{1}{1});
     else
         fprintf('Pattern not found\n');
     end
@@ -79,7 +79,8 @@ for i = 1:length(psg_name)
         name{i_MOR} = name_label;
         start_sec{i_MOR} = MOR_Yetton_cur_file(i_MOR);
         duration_sec{i_MOR} = MINI_EPOCH_LEN_S;
-        channels{i_MOR} = ['[' REMs_out.LOC_label{1} ']'];
+
+        channels{i_MOR} = sprintf("['%s']",string(REMs_out.LOC_label{1}));
     end
     % Create a table
     MOR_yetton_table_cur_file = table(group, name, start_sec, duration_sec, channels);

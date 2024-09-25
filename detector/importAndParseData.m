@@ -1,4 +1,4 @@
-function dataSet = importAndParseData(psgFileToLoad,locChannel,rocChannel,startREM,endREM)
+function dataSet = importAndParseData(psgData,locChannel,rocChannel,startREM,endREM)
 settings.SAMPLE_RATE = 256; %Sample Rate
 settings.SAMPLING_MULTIPLIER = 200; %x2 times 100 for some reason from scoring programs output
 settings.LOW_FILTER_CUTOFF_FREQ = 5;
@@ -13,7 +13,7 @@ settings.WIN_OVERLAP = round(settings.WIN_OVERLAP_FRACTION*settings.WIN_SIZE); %
 settings.CENTER_PERIOD = settings.WIN_SIZE-settings.WIN_OVERLAP; %the amount of samples between each windows center
 
 %------Read in PSG Data and Filter---------------------
-psgData = load(psgFileToLoad,'-mat');
+%psgData = load(psgFileToLoad,'-mat');
 if ~exist('startREM','var') || startREM == 0
    startREM = 1; 
 end
