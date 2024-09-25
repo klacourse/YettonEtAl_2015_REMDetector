@@ -1,5 +1,9 @@
 function runDetector(detectors2Run,locChannel,rocChannel)
-%% detectors2Run should be a subset of the following strings, or an empty array []:
+%detectors2Run = {'YettonEtAl_SingleFeature'};
+%locChannel = 'LOC';
+%rocChannel = 'ROC';
+
+% detectors2Run should be a subset of the following strings, or an empty array []:
 if ~exist('detectors2Run','var') || isempty(detectors2Run)
     detectors2Run = {
         'YettonEtAl_MachineLearning',...
@@ -23,8 +27,10 @@ end
 disp('Converting EDF to mat files')
 [edfs,outputLocation] = edf2matMultiSelect();
 edfs = edfs(~cellfun(@isempty, edfs));
-outputFileName = [outputLocation 'remDetectorOutput' datestr(now, 'dd-mmm-yyyy-hhMM')];
-[fileName,filePath]=uigetfile('*.csv','Select Rem start and End .csv file','MultiSelect', 'off');
+
+%[fileName,filePath]=uigetfile('*.csv','Select Rem start and End .csv file','MultiSelect', 'off');
+fileName = 'REM_start_end.csv';
+filePath = 'C:\Users\klacourse\Documents\NGosselin\data\edf\RBD\10_first_subjects\';
 startAndEnd = true;
 if ~fileName
     startAndEnd = false;
@@ -37,8 +43,9 @@ windowLocationsInSamples = cell(length(detectors2Run),length(edfs));
 i = 1;
 for i_edf=1:length(edfs)
     fprintf('Parsing file data ')
-    [~,name,~] = fileparts(edfs{i_edf});
-    name = [name '.edf'];
+    [~,name_noext,~] = fileparts(edfs{i_edf});
+    name = [name_noext '.edf'];
+    outputFileName = [outputLocation 'REMsOut_' name_noext ' date-' datestr(now, 'dd-mmm-yyyy-hhMM')];
     fprintf('\n\n----------Working on %s (file %i of %i)-----------\n',name,i_edf,length(edfs))
     startTimes = [0];
     endTimes = [0];
@@ -62,6 +69,8 @@ for i_edf=1:length(edfs)
         fprintf('\n%s period %i of %i\n',name,remperiod,length(startTimes)); 
         fprintf('\tLoading Data\n')
         parsedData = importAndParseData(edfs{i_edf},locChannel,rocChannel,startTimes(remperiod),endTimes(remperiod));
+        LOC_label = parsedData.LOC_label;
+        ROC_label = parsedData.ROC_label;
         for currentDetector = 1:length(detectors2Run);
             fprintf('\tRunning %s (%i of %i)\n',detectors2Run{currentDetector},currentDetector,length(detectors2Run))
             if strcmp(detectors2Run{currentDetector},'YettonEtAl_MachineLearning')               
@@ -83,7 +92,7 @@ for i_edf=1:length(edfs)
     end
     remTable = struct2table(rem);
     %remTable.Properties.VariableNames = ['fileName' detectors2Run'];
-    save([outputFileName '.mat'],'remTable','windowLabels','windowLocationsInSamples','locsInSamples');
+    save([outputFileName '.mat'],'remTable','windowLabels','windowLocationsInSamples','locsInSamples','LOC_label','ROC_label');
     writetable(remTable,[outputFileName '.csv']);
 end
 end

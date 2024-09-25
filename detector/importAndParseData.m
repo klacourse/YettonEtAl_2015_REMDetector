@@ -24,17 +24,35 @@ end
 
 if isstr(locChannel)
     locChannel = regexprep(locChannel,'\W',''); %edf read replaces some chars...
-    locChannelNum = find(strcmp(locChannel,edfData.hdr.label));
+    %locChannelNum = find(strcmp(locChannel,psgData.hdr.label));
+    isLabelFound = cellfun(@(x) contains(x, locChannel), psgData.hdr.label);
+    indices = find(isLabelFound);
+    if length(indices)>1
+        warning('Check the LOC label %s because it is found more than once, locChannel\n')
+    elseif isempty(indices)
+        warning('Check the LOC label %s because it is not found, locChannel\n')
+    end
+    locChannelNum = indices(1);
 else
     locChannelNum = locChannel;
 end
+loc_real_label = psgData.hdr.chanlabel(locChannelNum);
 
 if isstr(rocChannel)
-    rocChannel = regexprep(rocChannel,'\W','');
-    rocChannelNum = find(strcmp(rocChannel,edfData.hdr.label));
+    rocChannel = regexprep(rocChannel,'\W',''); %edf read replaces some chars...
+    %locChannelNum = find(strcmp(locChannel,psgData.hdr.label));
+    isLabelFound = cellfun(@(x) contains(x, rocChannel), psgData.hdr.label);
+    indices = find(isLabelFound);
+    if length(indices)>1
+        warning('Check the LOC label %s because it is found more than once, locChannel\n')
+    elseif isempty(indices)
+        warning('Check the LOC label %s because it is not found, locChannel\n')
+    end
+    rocChannelNum = indices(1);
 else
     rocChannelNum = rocChannel;
 end
+roc_real_label = psgData.hdr.chanlabel(rocChannelNum);
 
 psgTemp1L = passFilter(psgData.record(locChannelNum,startREM:endREM),settings.SAMPLE_RATE,settings.LOW_FILTER_CUTOFF_FREQ,'low',settings.FILTER_ATENUATION); %20Hz cutoff filter
 psgTemp1R = passFilter(psgData.record(rocChannelNum,startREM:endREM),settings.SAMPLE_RATE,settings.LOW_FILTER_CUTOFF_FREQ,'low',settings.FILTER_ATENUATION);
@@ -75,5 +93,7 @@ dataSet.timeData = psgWindowData;
 dataSet.freqData = psgWindowFreqData;
 dataSet.winIndexData = featureWindowsIndex;
 dataSet.settings = settings;
+dataSet.LOC_label = loc_real_label;
+dataSet.ROC_label = roc_real_label;
 
 end

@@ -146,7 +146,10 @@ hdr.duration   = str2double(fread(fid,8,'*char')');
 % Number of signals
 hdr.ns    = str2double(fread(fid,4,'*char')');
 for ii = 1:hdr.ns
-    hdr.label{ii} = regexprep(fread(fid,16,'*char')','\W','');
+    original_label = fread(fid,16,'*char')';
+    hdr.label{ii} = regexprep(original_label,'\W','');
+    %hdr.label{ii} = regexprep(fread(fid,16,'*char')','\W','');
+    hdr.chanlabel{ii} = deblank(original_label);
 end
 
 if isempty(targetSignals)
@@ -191,6 +194,7 @@ for ii = 1:hdr.ns
     reserved    = fread(fid,32,'*char')';
 end
 hdr.label = hdr.label(targetSignals);
+hdr.chanlabel = hdr.chanlabel(targetSignals);
 hdr.label = regexprep(hdr.label,'\W','');
 hdr.units = regexprep(hdr.units,'\W','');
 if nargout > 1 || assignToVariables
